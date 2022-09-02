@@ -1,30 +1,23 @@
-import { useState } from "react";
+import React from "react";
+import useInput from "../hooks/use-input";
 const SimpleInput = (props) => {
-  const [enteredName, setEnteredName] = useState("");
+  const {
+    value: enteredName,
+    isValid: enteredNameIsValid,
+    hasError: nameInputHasError,
+    valueChangeHandler: nameChangeHandler,
+    inputBlurHandler: nameBlurHandler,
+    resetFunction: resetNameInput,
+  } = useInput((value) => value.trim() !== "");
 
-  const [enteredNameTouched, setEnteredNameTouched] = useState(false);
-  const enteredNameIsValid = enteredName.trim() != "";
-  const nameInputIsValid = !enteredNameIsValid && enteredNameTouched;
-  // useEffect(() => {
-  //   if (enteredNameIsValid) {
-  //     setFormIsvalid(true);
-  //   } else {
-  //     setFormIsvalid(false);
-  //   }
-  // }, [enteredNameIsValid]);
   let formIsvalid = false;
   if (enteredNameIsValid) {
     formIsvalid = true;
   }
-  const nameInputChangeHandler = (event) => {
-    setEnteredName(event.target.value);
-  };
-  const nameInputBlurHandler = (event) => {
-    setEnteredNameTouched(true);
-  };
+
   const formSubmitHandler = (event) => {
     event.preventDefault();
-    setEnteredNameTouched(true);
+    resetNameInput();
     if (!enteredNameIsValid) {
       return;
     }
@@ -32,11 +25,9 @@ const SimpleInput = (props) => {
     console.log(enteredName);
 
     // nameInputRef.current.value = ''; => NOT IDEAL DONT MANIPULATE THE DOM
-    setEnteredName("");
-    setEnteredNameTouched(false);
   };
 
-  const nameInputClasses = nameInputIsValid
+  const nameInputClasses = nameInputHasError
     ? "form-control invalid"
     : "form-control";
   return (
@@ -46,11 +37,11 @@ const SimpleInput = (props) => {
         <input
           type="text"
           id="name"
-          onChange={nameInputChangeHandler}
-          onBlur={nameInputBlurHandler}
+          onChange={nameChangeHandler} // depending on the arguments brought by the custom hooks
+          onBlur={nameBlurHandler}
           value={enteredName}
         />
-        {nameInputIsValid && (
+        {nameInputHasError && (
           <p className="error-text">Name must not be empty</p>
         )}
       </div>
